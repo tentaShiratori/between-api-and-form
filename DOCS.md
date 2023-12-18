@@ -1,5 +1,3 @@
-## 型の生成系いろいろ
-
 この記事は[TypeScriptアドベントカレンダー](https://qiita.com/advent-calendar/2023/typescript)21日目の記事です。
 
 ## はじめに
@@ -180,18 +178,10 @@ npx ts-to-zod
 
 ## zodのコードをフォーム用に変換
 
-変換は以下のようにランタイムで行います。
+ここはこれまでのように生成するのではなくランタイムで変換を行います。
 
 `forForm`がこの章の肝となる関数です。
 
-`sampleSchema`というzodのコードを変換してます。
-
-なぜこのような変換をするのかというと、以下の理由からです。
-- 入力系の要素(inputやselectなど)は文字列しか扱えない
-
-また、以下の点に注意してください。
-- `useForm`の型パラメータに`zod.infer<typeof stringify>, any, zod.infer<typeof validator>`を渡す
-- APIからのデータをフォームに入れるときは`stringify.parse`で変換して入れる
 
 ```ts
   const [stringify, validator] = forForm(sampleSchema)
@@ -215,6 +205,17 @@ npx ts-to-zod
     resolver: zodResolver(validator),
   });
 ```
+
+
+[Request・Responseの型から、zodのコードを生成](#request%E3%83%BBresponse%E3%81%AE%E5%9E%8B%E3%81%8B%E3%82%89%E3%80%81zod%E3%81%AE%E3%82%B3%E3%83%BC%E3%83%89%E3%82%92%E7%94%9F%E6%88%90)で生成される`sampleSchema`というzodのコードを変換してます。
+
+なぜこのような変換をするのかというと、以下の理由からです。
+- 入力系の要素(inputやselectなど)は文字列しか扱えない
+
+また、以下の点に注意してください。
+- `useForm`の型パラメータに変換後のコードから生成する型`zod.infer<typeof stringify>, any, zod.infer<typeof validator>`を渡す
+- APIからのデータをフォームに入れるときは`stringify.parse`で変換して入れる
+
 
 
 `forForm`の実装は以下です。

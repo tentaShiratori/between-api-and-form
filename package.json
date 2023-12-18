@@ -9,6 +9,7 @@
     "test": "jest",
     "lint": "next lint",
     "fmt": "prettier --write .",
+    "typecheck": "tsc --noEmit",
     "generate": "rimraf ./lib/api & run-s gen:*",
     "gen:aspida": "npx openapi2aspida",
     "gen:validator": "npx ts-to-zod"
