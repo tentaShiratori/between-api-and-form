@@ -1,0 +1,89 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Sample"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "development"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "sample": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "age": {
+            "type": "number"
+          },
+          "is_adult": {
+            "type": "boolean"
+          },
+          "gender": {
+            "type": "number",
+            "enum": [1, 2, 3]
+          },
+          "hobby": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["game", "books", "sports"]
+            }
+          }
+        },
+        "required": ["name", "email", "age", "is_adult", "gender", "hobby"]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/sample": {
+      "get": {
+        "parameters": [
+          {
+            "name": "name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/sample"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/sample"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  }
+}
