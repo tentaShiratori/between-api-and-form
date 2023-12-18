@@ -104,12 +104,12 @@ function stringify<T extends ZodUnknown>(schema: T): Stringify<T> {
   }
   
   if (isArray(schema)) {
-    return zod.array(zod.coerce.string()) as never
+    return zod.array(stringify(schema.element)) as never
   }
 
   return zod.coerce.string() as never;
 }
 
-export function forForm<T extends ZodUnknown>(schema: T): [form:Stringify<T>,validator:T] {
+export function forForm<T extends ZodUnknown>(schema: T): [stringify:Stringify<T>,validator:T] {
   return [stringify(schema),coerce(schema)]
 }
