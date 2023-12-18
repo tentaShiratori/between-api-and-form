@@ -7,6 +7,10 @@
 弊社ではいろいろ生成して開発の効率化を図っています。
 今回はその中でも、OpenAPIからフォームまで一気通貫で型を合わせる方法を紹介します。
 
+この記事の内容を反映したサンプルプロジェクトを以下に置いておきます。
+
+https://github.com/tentaShiratori/between-api-and-form/tree/bd36ed38d63be730180f87695ea6cfb2b3a866f7
+
 ## 前提知識
 
 - React
