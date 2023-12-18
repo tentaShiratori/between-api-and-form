@@ -13,15 +13,11 @@ import zod, {
 type ZodUnknownDef = { typeName: ZodFirstPartyTypeKind } & ZodTypeDef;
 type ZodUnknown = ZodType<any, ZodUnknownDef>;
 
-function isObject(
-  schema: ZodUnknown,
-): schema is ZodObject<ZodRawShape> {
+function isObject(schema: ZodUnknown): schema is ZodObject<ZodRawShape> {
   return schema._def.typeName === ZodFirstPartyTypeKind.ZodObject;
 }
 
-function isArray(
-  schema: ZodUnknown,
-): schema is ZodArray<ZodUnknown> {
+function isArray(schema: ZodUnknown): schema is ZodArray<ZodUnknown> {
   return schema._def.typeName === ZodFirstPartyTypeKind.ZodArray;
 }
 
@@ -31,13 +27,15 @@ function isUnion(
   return schema._def.typeName === ZodFirstPartyTypeKind.ZodUnion;
 }
 
-function isLiteral(
-  schema: ZodUnknown,
-): schema is ZodLiteral<unknown> {
+function isLiteral(schema: ZodUnknown): schema is ZodLiteral<unknown> {
   return schema._def.typeName === ZodFirstPartyTypeKind.ZodLiteral;
 }
 
-type Stringify<T extends ZodUnknown> = T extends ZodObject<infer U> ? ZodObject<{[K in keyof U]: Stringify<U[K]>}>: T extends ZodArray<infer U> ? ZodArray<Stringify<U>> : ZodString;
+type Stringify<T extends ZodUnknown> = T extends ZodObject<infer U>
+  ? ZodObject<{ [K in keyof U]: Stringify<U[K]> }>
+  : T extends ZodArray<infer U>
+    ? ZodArray<Stringify<U>>
+    : ZodString;
 
 function coerce<T extends ZodUnknown>(schema: T): T {
   if (schema._def.typeName === ZodFirstPartyTypeKind.ZodString) {
@@ -82,7 +80,9 @@ function coerce<T extends ZodUnknown>(schema: T): T {
     return zod.array(coerce(schema.element)) as never;
   }
   if (isUnion(schema)) {
-    return zod.union(schema.options.map((value) => coerce(value)) as never) as never;
+    return zod.union(
+      schema.options.map((value) => coerce(value)) as never,
+    ) as never;
   }
   throw new Error("not implemented");
 }
@@ -100,16 +100,18 @@ function stringify<T extends ZodUnknown>(schema: T): Stringify<T> {
           },
         ),
       ),
-    ) as never
+    ) as never;
   }
-  
+
   if (isArray(schema)) {
-    return zod.array(stringify(schema.element)) as never
+    return zod.array(stringify(schema.element)) as never;
   }
 
   return zod.coerce.string() as never;
 }
 
-export function forForm<T extends ZodUnknown>(schema: T): [stringify:Stringify<T>,validator:T] {
-  return [stringify(schema),coerce(schema)]
+export function forForm<T extends ZodUnknown>(
+  schema: T,
+): [stringify: Stringify<T>, validator: T] {
+  return [stringify(schema), coerce(schema)];
 }

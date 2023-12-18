@@ -13,7 +13,7 @@ export async function setupMSW() {
           age: 12,
           is_adult: false,
           gender: 2,
-          hobby:["sports"]
+          hobby: ["sports"],
         }),
       );
     }),

@@ -182,41 +182,39 @@ npx ts-to-zod
 
 `forForm`がこの章の肝となる関数です。
 
-
 ```ts
-  const [stringify, validator] = forForm(sampleSchema)
+const [stringify, validator] = forForm(sampleSchema);
 
-  useEffect(() => {
-    apiClient.sample.get().then((res) => {
-      const stringedBody = stringify.parse(res.body)
-      for (const key in stringedBody) {
-        setValue(
-          key as keyof typeof stringedBody,
-          stringedBody[key as keyof typeof stringedBody],
-        );
-      }
-    });
-  }, []);
-  const {
-    register,
-    handleSubmit,
-    watch,
-  } = useForm<zod.infer<typeof stringify>, any, zod.infer<typeof validator>>({
-    resolver: zodResolver(validator),
+useEffect(() => {
+  apiClient.sample.get().then((res) => {
+    const stringedBody = stringify.parse(res.body);
+    for (const key in stringedBody) {
+      setValue(
+        key as keyof typeof stringedBody,
+        stringedBody[key as keyof typeof stringedBody],
+      );
+    }
   });
+}, []);
+const { register, handleSubmit, watch } = useForm<
+  zod.infer<typeof stringify>,
+  any,
+  zod.infer<typeof validator>
+>({
+  resolver: zodResolver(validator),
+});
 ```
-
 
 [Request・Responseの型から、zodのコードを生成](#request%E3%83%BBresponse%E3%81%AE%E5%9E%8B%E3%81%8B%E3%82%89%E3%80%81zod%E3%81%AE%E3%82%B3%E3%83%BC%E3%83%89%E3%82%92%E7%94%9F%E6%88%90)で生成される`sampleSchema`というzodのコードを変換してます。
 
 なぜこのような変換をするのかというと、以下の理由からです。
+
 - 入力系の要素(inputやselectなど)は文字列しか扱えない
 
 また、以下の点に注意してください。
+
 - `useForm`の型パラメータに変換後のコードから生成する型`zod.infer<typeof stringify>, any, zod.infer<typeof validator>`を渡す
 - APIからのデータをフォームに入れるときは`stringify.parse`で変換して入れる
-
-
 
 `forForm`の実装は以下です。
 
@@ -238,15 +236,11 @@ import zod, {
 type ZodUnknownDef = { typeName: ZodFirstPartyTypeKind } & ZodTypeDef;
 type ZodUnknown = ZodType<any, ZodUnknownDef>;
 
-function isObject(
-  schema: ZodUnknown,
-): schema is ZodObject<ZodRawShape> {
+function isObject(schema: ZodUnknown): schema is ZodObject<ZodRawShape> {
   return schema._def.typeName === ZodFirstPartyTypeKind.ZodObject;
 }
 
-function isArray(
-  schema: ZodUnknown,
-): schema is ZodArray<ZodUnknown> {
+function isArray(schema: ZodUnknown): schema is ZodArray<ZodUnknown> {
   return schema._def.typeName === ZodFirstPartyTypeKind.ZodArray;
 }
 
@@ -256,13 +250,15 @@ function isUnion(
   return schema._def.typeName === ZodFirstPartyTypeKind.ZodUnion;
 }
 
-function isLiteral(
-  schema: ZodUnknown,
-): schema is ZodLiteral<unknown> {
+function isLiteral(schema: ZodUnknown): schema is ZodLiteral<unknown> {
   return schema._def.typeName === ZodFirstPartyTypeKind.ZodLiteral;
 }
 
-type Stringify<T extends ZodUnknown> = T extends ZodObject<infer U> ? ZodObject<{[K in keyof U]: Stringify<U[K]>}>: T extends ZodArray<infer U> ? ZodArray<Stringify<U>> : ZodString;
+type Stringify<T extends ZodUnknown> = T extends ZodObject<infer U>
+  ? ZodObject<{ [K in keyof U]: Stringify<U[K]> }>
+  : T extends ZodArray<infer U>
+    ? ZodArray<Stringify<U>>
+    : ZodString;
 
 function coerce<T extends ZodUnknown>(schema: T): T {
   if (schema._def.typeName === ZodFirstPartyTypeKind.ZodString) {
@@ -307,7 +303,9 @@ function coerce<T extends ZodUnknown>(schema: T): T {
     return zod.array(coerce(schema.element)) as never;
   }
   if (isUnion(schema)) {
-    return zod.union(schema.options.map((value) => coerce(value)) as never) as never;
+    return zod.union(
+      schema.options.map((value) => coerce(value)) as never,
+    ) as never;
   }
   throw new Error("not implemented");
 }
@@ -325,18 +323,20 @@ function stringify<T extends ZodUnknown>(schema: T): Stringify<T> {
           },
         ),
       ),
-    ) as never
+    ) as never;
   }
-  
+
   if (isArray(schema)) {
-    return zod.array(zod.coerce.string()) as never
+    return zod.array(zod.coerce.string()) as never;
   }
 
   return zod.coerce.string() as never;
 }
 
-export function forForm<T extends ZodUnknown>(schema: T): [form:Stringify<T>,validator:T] {
-  return [stringify(schema),coerce(schema)]
+export function forForm<T extends ZodUnknown>(
+  schema: T,
+): [form: Stringify<T>, validator: T] {
+  return [stringify(schema), coerce(schema)];
 }
 ```
 

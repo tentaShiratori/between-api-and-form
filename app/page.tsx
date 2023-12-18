@@ -10,7 +10,7 @@ import { useEffect } from "react";
 import { forForm } from "@/lib/zod";
 
 export default function Home() {
-  const [stringify, validator] = forForm(sampleSchema)
+  const [stringify, validator] = forForm(sampleSchema);
   const {
     register,
     handleSubmit: createHandleSubmit,
@@ -24,7 +24,7 @@ export default function Home() {
     (async () => {
       await setupMSW();
       apiClient.sample.get().then((res) => {
-        const stringedBody = stringify.parse(res.body)
+        const stringedBody = stringify.parse(res.body);
         for (const key in stringedBody) {
           setValue(
             key as keyof typeof stringedBody,
@@ -36,13 +36,10 @@ export default function Home() {
   }, []);
   const handleSubmit = createHandleSubmit(async (data) => {
     await apiClient.sample.post({ body: data });
-  })
+  });
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <form
-        onSubmit={handleSubmit}
-        className="grid grid-cols-2 gap-3"
-      >
+      <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3">
         <div className="flex flex-col bg-white rounded-xl p-3 gap-3">
           <h3 className="border-b border-b-gray-300">form</h3>
           <input {...register("name")} placeholder="Name" />
